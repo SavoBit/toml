@@ -111,7 +111,7 @@ func (enc *Encoder) encode(key Key, rv reflect.Value) {
 	// Basically, this prevents the encoder for handling these types as
 	// generic structs (or whatever the underlying type of a TextMarshaler is).
 	switch rv.Interface().(type) {
-	case time.Time, TextMarshaler:
+	case time.Time, time.Duration, TextMarshaler:
 		enc.keyEqElement(key, rv)
 		return
 	}
@@ -161,6 +161,9 @@ func (enc *Encoder) eElement(rv reflect.Value) {
 		// TextMarshaler below because time.Time implements
 		// encoding.TextMarshaler, but we need to always use UTC.
 		enc.wf(v.In(time.FixedZone("UTC", 0)).Format("2006-01-02T15:04:05Z"))
+		return
+	case time.Duration:
+		enc.wf(v.String())
 		return
 	case TextMarshaler:
 		// Special case. Use text marshaler if it's available for this value.
